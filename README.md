@@ -208,37 +208,34 @@ municipal-complaint-system/
 ### Prerequisites
 - **Java 17+** (JDK 17 or JDK 21/23)
 - **Maven 3.9+**
-- **Docker & Docker Compose** (for PostgreSQL and Redis)
+- **Docker & Docker Compose** (only for the containerized stack and integration tests)
 
-### Quick Start with Docker Compose
-1. Copy the environment configuration template:
+### Run Locally (H2, No Docker Required)
+Start the backend with its local profile:
    ```bash
-   cp .env.example .env
+   mvn -f backend/pom.xml spring-boot:run -Dspring-boot.run.profiles=local
    ```
-2. Start PostgreSQL and Redis:
-   ```bash
-   docker compose up -d postgres redis
-   ```
-3. Run the Spring Boot application:
-   ```bash
-   mvn spring-boot:run
-   ```
-4. Access Swagger UI at:  
-   **`http://localhost:8080/swagger-ui.html`**
+The local profile uses an in-memory H2 database. To create an initial administrator, set `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD` in your environment before starting the app. The defaults intentionally create no administrator.
 
-### Running the Entire Stack in Docker
-```bash
-docker compose up -d --build
-```
+Access the application at **`http://localhost:8085`** and Swagger UI at **`http://localhost:8085/swagger-ui.html`**.
+
+### Run with Docker Compose
+1. Copy `.env.example` to `.env` and replace the placeholder database password and JWT secret with unique local values.
+2. Start the full stack:
+   ```bash
+   docker compose up -d --build
+   ```
+To create an initial administrator, also set `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD` in `.env`. No administrator is created by default.
+Swagger UI is available at **`http://localhost:8080/swagger-ui.html`**.
 
 ### Running Tests
 - **Unit Tests** (no Docker required):
   ```bash
-  mvn test
+   mvn -f backend/pom.xml test
   ```
 - **Integration Tests** (runs against real PostgreSQL container via Testcontainers):
   ```bash
-  mvn verify
+   mvn -f backend/pom.xml verify
   ```
 
 ---
@@ -246,6 +243,6 @@ docker compose up -d --build
 ## 9. Interactive API Testing
 
 An HTTP client request file is included at:
-[`http/municipal-api.http`](file:///c:/ttuma/http/municipal-api.http)
+[`backend/http/municipal-api.http`](backend/http/municipal-api.http)
 
 It can be executed directly inside IntelliJ IDEA, VS Code (REST Client extension), or converted to Postman collections.

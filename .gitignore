@@ -6,6 +6,8 @@ target/
 
 # Secrets and local configuration
 .env
+.env.*
+!.env.example
 *.pem
 *.key
 

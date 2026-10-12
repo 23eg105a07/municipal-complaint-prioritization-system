@@ -30,5 +30,5 @@ app:
       expiration-minutes: 120
   bootstrap-admin:
     full-name: System Administrator
-    email: admin@municipal.gov
-    password: AdminPassword123!
+    email: ${BOOTSTRAP_ADMIN_EMAIL:}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:}
