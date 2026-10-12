@@ -3,7 +3,7 @@ services:
     name: municipal-complaint-system
     runtime: docker
     plan: free
-    healthCheckPath: /actuator/health
+    healthCheckPath: /actuator/health/liveness
     envVars:
       - key: PORT
         value: 10000
