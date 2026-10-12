@@ -1,0 +1,34 @@
+server:
+  port: ${SERVER_PORT:8085}
+
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  datasource:
+    url: jdbc:h2:mem:municipaldb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+
+  flyway:
+    enabled: false
+
+  cache:
+    type: simple
+
+app:
+  security:
+    jwt:
+      secret: local-standalone-secret-key-at-least-32-chars-long!
+      expiration-minutes: 120
+  bootstrap-admin:
+    full-name: System Administrator
+    email: admin@municipal.gov
+    password: AdminPassword123!

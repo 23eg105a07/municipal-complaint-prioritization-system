@@ -1,0 +1,32 @@
+# Activated with @ActiveProfiles("test"). Values here are test-only.
+spring:
+  datasource:
+    # Overridden at runtime by the Testcontainers @ServiceConnection; present so placeholders resolve.
+    url: jdbc:postgresql://localhost:5432/municipal_test
+    username: test
+    password: test
+  cache:
+    type: simple
+  jpa:
+    show-sql: false
+
+app:
+  security:
+    jwt:
+      secret: test-only-jwt-secret-0123456789-abcdefghijklmnop
+      expiration-minutes: 5
+  priority:
+    recalculation:
+      enabled: false               # tests call the services directly, so runs stay deterministic
+  sla:
+    escalation:
+      enabled: false
+  bootstrap-admin:
+    email: ""
+    password: ""
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

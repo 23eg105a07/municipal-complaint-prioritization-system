@@ -1,0 +1,230 @@
+### =============================================================================
+### Municipal Complaint Prioritization System - API Collection
+### =============================================================================
+@baseUrl = http://localhost:8080
+@contentType = application/json
+
+### -----------------------------------------------------------------------------
+### 1. Authentication & Registration
+### -----------------------------------------------------------------------------
+
+### 1.1 Register Citizen 1
+# @name registerCitizen1
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "alice.citizen@example.com",
+  "password": "Password123!",
+  "fullName": "Alice Johnson",
+  "phone": "+1-555-0101"
+}
+
+### 1.2 Register Citizen 2 (for upvoting)
+# @name registerCitizen2
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "bob.citizen@example.com",
+  "password": "Password123!",
+  "fullName": "Bob Miller",
+  "phone": "+1-555-0102"
+}
+
+### 1.3 Login as Citizen 1
+# @name loginCitizen1
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "alice.citizen@example.com",
+  "password": "Password123!"
+}
+
+### Save Citizen Token
+@citizenToken = {{loginCitizen1.response.body.accessToken}}
+
+### 1.4 Login as Admin (created via BOOTSTRAP_ADMIN_* env vars)
+# @name loginAdmin
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@municipal.gov",
+  "password": "AdminPassword123!"
+}
+
+### Save Admin Token
+@adminToken = {{loginAdmin.response.body.accessToken}}
+
+
+### -----------------------------------------------------------------------------
+### 2. Reference Data
+### -----------------------------------------------------------------------------
+
+### 2.1 Get All Departments (Public)
+GET {{baseUrl}}/api/departments
+
+### 2.2 Get Department by ID
+GET {{baseUrl}}/api/departments/1
+
+
+### -----------------------------------------------------------------------------
+### 3. Admin User Management
+### -----------------------------------------------------------------------------
+
+### 3.1 Create Field Officer for Roads Department (Zone 1)
+# @name createOfficer
+POST {{baseUrl}}/api/admin/officers
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "email": "officer.roads@municipal.gov",
+  "password": "OfficerPassword123!",
+  "fullName": "Officer Marcus Vance",
+  "phone": "+1-555-0199",
+  "departmentId": 1,
+  "zoneId": 1
+}
+
+### Save Officer ID
+@officerId = {{createOfficer.response.body.id}}
+
+### 3.2 Login as Field Officer
+# @name loginOfficer
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "officer.roads@municipal.gov",
+  "password": "OfficerPassword123!"
+}
+
+### Save Officer Token
+@officerToken = {{loginOfficer.response.body.accessToken}}
+
+### 3.3 List All Field Officers
+GET {{baseUrl}}/api/admin/officers
+Authorization: Bearer {{adminToken}}
+
+
+### -----------------------------------------------------------------------------
+### 4. Complaint Reporting & Life-Cycle
+### -----------------------------------------------------------------------------
+
+### 4.1 Submit High-Severity Pothole Complaint (Severity 5 -> Instant +50 Boost)
+# @name submitComplaint
+POST {{baseUrl}}/api/complaints
+Content-Type: {{contentType}}
+Authorization: Bearer {{citizenToken}}
+
+{
+  "title": "Severe Cave-in Pothole on Oak Avenue",
+  "description": "Deep 3-foot pothole exposing water piping, creating severe hazard for vehicles and pedestrians.",
+  "category": "POTHOLE",
+  "severity": 5,
+  "zoneId": 1,
+  "latitude": 37.774929,
+  "longitude": -122.419416,
+  "address": "450 Oak Avenue, Zone 1",
+  "photoUrl": "https://storage.civic.gov/evidence/oak_pothole_01.jpg"
+}
+
+### Save Complaint ID
+@complaintId = {{submitComplaint.response.body.id}}
+
+### 4.2 Fetch Dynamic Priority Queue (Sorted by Priority Score Descending)
+GET {{baseUrl}}/api/complaints/priority?page=0&size=10
+Authorization: Bearer {{citizenToken}}
+
+### 4.3 Get Specific Complaint Details
+GET {{baseUrl}}/api/complaints/{{complaintId}}
+Authorization: Bearer {{citizenToken}}
+
+### 4.4 Citizen 2 Login & Upvote Complaint
+# @name loginCitizen2
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "bob.citizen@example.com",
+  "password": "Password123!"
+}
+
+@citizen2Token = {{loginCitizen2.response.body.accessToken}}
+
+### Upvote Complaint (Increases Affected Count & Recalculates Score)
+POST {{baseUrl}}/api/complaints/{{complaintId}}/upvote
+Authorization: Bearer {{citizen2Token}}
+
+
+### -----------------------------------------------------------------------------
+### 5. Dispatch, Assignment & Status Pipeline
+### -----------------------------------------------------------------------------
+
+### 5.1 Admin Assigns Complaint to Field Officer
+PUT {{baseUrl}}/api/complaints/{{complaintId}}/assign
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "officerId": {{officerId}},
+  "notes": "Urgent critical hazard. Proceed with asphalt crew immediately."
+}
+
+### 5.2 Officer Updates Status to IN_PROGRESS
+PATCH {{baseUrl}}/api/complaints/{{complaintId}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{officerToken}}
+
+{
+  "status": "IN_PROGRESS",
+  "remarks": "Asphalt repair crew dispatched to site. Traffic cones placed.",
+  "proofPhotoUrl": "https://storage.civic.gov/work/oak_in_progress.jpg"
+}
+
+### 5.3 Officer Resolves Complaint with Proof of Work
+PATCH {{baseUrl}}/api/complaints/{{complaintId}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{officerToken}}
+
+{
+  "status": "RESOLVED",
+  "remarks": "Pothole filled and leveled. Surface sealed. Road open to traffic.",
+  "proofPhotoUrl": "https://storage.civic.gov/work/oak_resolved.jpg"
+}
+
+### 5.4 View Complaint Status History Audit Trail
+GET {{baseUrl}}/api/complaints/{{complaintId}}/history
+Authorization: Bearer {{citizenToken}}
+
+### 5.5 Reporting Citizen Submits Resolution Feedback (Closes Ticket)
+POST {{baseUrl}}/api/complaints/{{complaintId}}/feedback
+Content-Type: {{contentType}}
+Authorization: Bearer {{citizenToken}}
+
+{
+  "rating": 5,
+  "comments": "Fixed within hours! Excellent work by the road repair crew."
+}
+
+
+### -----------------------------------------------------------------------------
+### 6. Analytics & Turnaround Reports
+### -----------------------------------------------------------------------------
+
+### 6.1 Get Live Municipal Analytics Summary (Admin / Officer)
+GET {{baseUrl}}/api/reports/analytics
+Authorization: Bearer {{adminToken}}
+
+### -----------------------------------------------------------------------------
+### 7. Actuator & Health Probes
+### -----------------------------------------------------------------------------
+
+### 7.1 Liveness Probe
+GET {{baseUrl}}/actuator/health/liveness
+
+### 7.2 Readiness Probe
+GET {{baseUrl}}/actuator/health/readiness
