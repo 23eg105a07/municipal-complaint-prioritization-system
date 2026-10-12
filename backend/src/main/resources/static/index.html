@@ -352,27 +352,12 @@
       <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Email</label>
-          <input type="email" id="login-email" required placeholder="admin@municipal.gov" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-sm">
+          <input type="email" id="login-email" required placeholder="admin@example.com" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-sm">
         </div>
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Password</label>
           <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-sm">
         </div>
-        <!-- One-click quick login buttons -->
-        <div class="pt-2">
-          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Quick Sign-In As:</p>
-          <div class="grid grid-cols-2 gap-2">
-            <button type="button" onclick="quickLogin('admin')" class="px-3 py-2 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 font-bold text-xs hover:bg-purple-100 flex items-center justify-center space-x-1.5 transition">
-              <i class="fa-solid fa-shield-halved"></i>
-              <span>Admin Login</span>
-            </button>
-            <button type="button" onclick="quickLogin('user')" class="px-3 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 font-bold text-xs hover:bg-blue-100 flex items-center justify-center space-x-1.5 transition">
-              <i class="fa-solid fa-user"></i>
-              <span>User (Citizen)</span>
-            </button>
-          </div>
-        </div>
-
         <button type="submit" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-md">Sign In</button>
       </form>
 
@@ -527,13 +512,8 @@
       } else {
         container.innerHTML = `
           <div class="flex items-center space-x-1.5">
-            <button onclick="quickLogin('admin')" title="Sign in as System Admin" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-md shadow-purple-500/20 transition flex items-center space-x-1">
-              <i class="fa-solid fa-shield-halved"></i>
-              <span class="hidden sm:inline">Admin</span> Login
-            </button>
-            <button onclick="quickLogin('user')" title="Sign in as Citizen User" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-500/20 transition flex items-center space-x-1">
-              <i class="fa-solid fa-user"></i>
-              <span class="hidden sm:inline">User</span> Login
+            <button onclick="openAuthModal()" title="Sign in" class="px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs transition">
+              Sign in
             </button>
           </div>
         `;
@@ -555,18 +535,6 @@
         document.getElementById('tab-register').className = 'flex-1 pb-3 text-sm font-bold border-b-2 border-brand-600 text-brand-600';
         document.getElementById('tab-login').className = 'flex-1 pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400';
       }
-    }
-
-    async function quickLogin(role) {
-      if (role === 'admin') {
-        document.getElementById('login-email').value = 'admin@municipal.gov';
-        document.getElementById('login-password').value = 'AdminPassword123!';
-      } else {
-        document.getElementById('login-email').value = 'citizen@municipal.gov';
-        document.getElementById('login-password').value = 'UserPassword123!';
-      }
-      const fakeEvent = { preventDefault: () => {} };
-      await handleLogin(fakeEvent);
     }
 
     async function handleLogin(e) {
