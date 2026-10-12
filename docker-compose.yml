@@ -37,7 +37,7 @@ services:
 
   app:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     container_name: mcps-app
     restart: unless-stopped

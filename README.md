@@ -113,48 +113,56 @@ When an unresolved ticket exceeds its target deadline:
 
 ```text
 municipal-complaint-system/
-├── .dockerignore
 ├── .env.example
 ├── .gitignore
-├── Dockerfile
 ├── docker-compose.yml
-├── pom.xml
 ├── README.md
-├── http/
-│   └── municipal-api.http                          # Ready-to-run HTTP API requests
-└── src/
-    ├── main/
-    │   ├── java/com/municipal/system/
-    │   │   ├── MunicipalSystemApplication.java     # UTC bootstrap entry point
-    │   │   ├── config/                             # AppProperties, Clock, Scheduler, Auditing, Cache, OpenAPI
-    │   │   ├── security/                           # JWT Token Provider, Security Filter Chain, UserDetails
-    │   │   ├── auth/                               # Register, Login, Auth tokens
-    │   │   ├── user/                               # Users, Roles, Admin officer management
-    │   │   ├── department/                         # Departments reference service
-    │   │   ├── complaint/                          # Complaint entities, upvoting, priority queue, mappers
-    │   │   ├── assignment/                         # Field officer assignment logic
-    │   │   ├── prioritization/                     # Dynamic scoring engine & background recalculator
-    │   │   ├── workflow/                           # Transition policies, audit logs, citizen feedback
-    │   │   ├── sla/                                # SLA tracking & automated escalation worker
-    │   │   ├── analytics/                          # Heatmaps, zone turnaround metrics, reports
-    │   │   ├── common/                             # Base entity auditing, ApiError, PageResponse
-    │   │   └── exception/                          # Global REST exception handling
-    │   └── resources/
-    │       ├── application.yml
-    │       └── db/migration/
-    │           ├── V1__create_schema.sql
-    │           └── V2__seed_departments.sql
-    └── test/
-        ├── java/com/municipal/system/
-        │   ├── prioritization/PriorityScoringServiceTest.java
-        │   ├── complaint/UpvoteServiceTest.java
-        │   ├── workflow/WorkflowTransitionPolicyTest.java
-        │   ├── sla/SlaServiceTest.java
-        │   └── integration/
-        │       ├── AbstractIntegrationTest.java
-        │       └── ComplaintFlowIT.java
-        └── resources/
-            └── application-test.yml
+│
+├── frontend/                                       # Standalone Frontend Client (CivicPulse)
+│   ├── index.html                                  # Single Page Application
+│   └── README.md                                   # Frontend setup & guide
+│
+└── backend/                                        # Spring Boot 3.3.5 Backend API
+    ├── pom.xml                                     # Maven dependency management
+    ├── Dockerfile                                  # Multi-stage production container build
+    ├── .dockerignore
+    ├── http/
+    │   └── municipal-api.http                      # Ready-to-run HTTP API requests
+    └── src/
+        ├── main/
+        │   ├── java/com/municipal/system/
+        │   │   ├── MunicipalSystemApplication.java # UTC bootstrap entry point
+        │   │   ├── config/                         # AppProperties, Clock, Cache, OpenAPI, Seeder
+        │   │   ├── security/                       # JWT Token Provider, Security Filter Chain
+        │   │   ├── auth/                           # Register, Login, Auth tokens
+        │   │   ├── user/                           # Users, Roles, Admin officer management
+        │   │   ├── department/                     # Departments reference service
+        │   │   ├── complaint/                      # Complaint entities, upvoting, priority queue
+        │   │   ├── assignment/                     # Field officer assignment logic
+        │   │   ├── prioritization/                 # Dynamic scoring engine & recalculator
+        │   │   ├── workflow/                       # Transition policies, audit logs, feedback
+        │   │   ├── sla/                            # SLA tracking & automated escalation worker
+        │   │   ├── analytics/                      # Heatmaps, zone turnaround metrics, reports
+        │   │   ├── common/                         # Base entity auditing, ApiError, PageResponse
+        │   │   └── exception/                      # Global REST exception handling
+        │   └── resources/
+        │       ├── application.yml                 # Production PostgreSQL/Redis config
+        │       ├── application-local.yml           # Zero-dependency local standalone profile
+        │       ├── static/index.html               # Embedded UI copy
+        │       └── db/migration/
+        │           ├── V1__create_schema.sql
+        │           └── V2__seed_departments.sql
+        └── test/
+            ├── java/com/municipal/system/
+            │   ├── prioritization/PriorityScoringServiceTest.java
+            │   ├── complaint/UpvoteServiceTest.java
+            │   ├── workflow/WorkflowTransitionPolicyTest.java
+            │   ├── sla/SlaServiceTest.java
+            │   └── integration/
+            │       ├── AbstractIntegrationTest.java
+            │       └── ComplaintFlowIT.java
+            └── resources/
+                └── application-test.yml
 ```
 
 ---
