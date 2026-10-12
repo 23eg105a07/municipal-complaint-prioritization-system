@@ -1,0 +1,47 @@
+services:
+  - type: web
+    name: municipal-complaint-system
+    runtime: docker
+    plan: free
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: DB_HOST
+        fromDatabase:
+          name: municipal-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: municipal-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: municipal-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: municipal-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: municipal-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CACHE_TYPE
+        value: simple
+      - key: SWAGGER_ENABLED
+        value: false
+      - key: BOOTSTRAP_ADMIN_EMAIL
+        sync: false
+      - key: BOOTSTRAP_ADMIN_PASSWORD
+        sync: false
+
+databases:
+  - name: municipal-db
+    databaseName: municipal
+    user: municipal
+    plan: free
+    postgresMajorVersion: "16"
+    ipAllowList: []
